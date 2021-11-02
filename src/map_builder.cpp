@@ -24,9 +24,16 @@ MapBuilder::MapBuilder() :
     ndt_.setResolution(1.0);
     ndt_.setMaximumIterations(30);
 
-    SlamBlockSolver::LinearSolverType* linear_solver = new SlamLinearSolver;
-    SlamBlockSolver* solver_ptr = new SlamBlockSolver(linear_solver);
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr); // L-M
+//    SlamBlockSolver::LinearSolverType* linear_solver = new SlamLinearSolver;
+//    SlamBlockSolver* solver_ptr = new SlamBlockSolver(linear_solver);
+//   g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg(solver_ptr); // L-M
+//
+    auto linear_solver = g2o::make_unique<SlamLinearSolver>();
+    linear_solver->setBlockOrdering(false);
+    auto solver_ptr = g2o::make_unique<SlamBlockSolver>(std::move(linear_solver));
+    optimizer_.setAlgorithm(new g2o::OptimizationAlgorithmLevenberg(std::move(solver_ptr)));
+
+
     optimizer_.setAlgorithm(solver);
     optimizer_.setVerbose(false);
 }
